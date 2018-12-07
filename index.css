@@ -14,6 +14,39 @@ hr {
 #addContainer {
     display: flex;
     flex-direction: row;
+    padding: 5%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#container{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-grow: 1;
+}
+@media (min-width: 1025px) {
+    #container {
+        width: 70%;
+    }
+}
+@media (max-width: 1025px) {
+    #container {
+        width: 95%;
+    }
+}
+
+#fileOptionsContainer {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#addButton {
+    margin-left: 5%;
 }
 
 .divider {
@@ -24,6 +57,8 @@ hr {
 .taskContainer {
     display: flex;
     flex-direction: row;
+    flex-grow: 1;
+    align-items: stretch;
 }
 
 .taskProperties {

@@ -110,7 +110,7 @@ class FileHandler {
             // Load client api
             if (data.action == google.picker.Action.PICKED) {
                 var fileId = data.docs[0].id;
-                callback(fileId);
+                callback(fileId, data.docs[0].name);
             }
         }
     }
@@ -151,8 +151,11 @@ class FileHandler {
             'fileId': fileId, 'alt': 'media'
         });
         request.execute((file) => {
-            console.log(file);
-            callback(file);
+            if (Array.isArray(file)) {
+                callback(file);
+            } else {
+                callback(null);
+            }
         });
     }
 

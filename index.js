@@ -6,60 +6,37 @@ let addButton = document.getElementById("addButton");
 
 addButton.addEventListener('click', addTask);
 
-let fileHandler = new FileHandler();
+let parser = new DOMParser();
 let storage = window.localStorage;
+let taskManager = new TaskManager(storage);
 var tasks = [];
+// tasks = JSON.parse(`[{"text":"Three","timestamp":1544187258016},{"text":"Two","timestamp":1544186876526}]`)
+// displayTasks(tasks);
 
 function gapi_loaded() {
-    fileHandler.loadLibrary(() => {
-        console.log("Loaded!");
-        updateTasks();
-    });
-}
-
-function updateTasks() {
-    let fileId = storage.getItem("file_id");
-    fileHandler.downloadFile(fileId, (all_tasks) => {
-        // tasks = JSON.parse(data);
-        // Sort tasks in descending order
-        tasks = all_tasks;
-        tasks = tasks.sort((a, b) => { return (b.timestamp - a.timestamp) });
+    taskManager.loadLibrary((tasks) => {
         displayTasks(tasks);
     });
 }
 
 function addTask() {
     let text = addInput.value;
-    let timestamp = Date.now();
-    let task = { text, timestamp }
-    tasks.splice(0, 0, task);
-    console.log(tasks);
-    displayTasks(tasks);
-    storeTasks();
-}
-
-function storeTasks() {
-    let fileId = storage.getItem("file_id");
-    fileHandler.updateFile(fileId, JSON.stringify(tasks), () => {
-        // displayTasks(tasks);
+    taskManager.addTask(text, (tasks) => {
+        displayTasks(tasks);
     });
 }
-
 
 selectFileButton.addEventListener("click", () => {
-    fileHandler.openFile((fileId) => {
-        storage.setItem("file_id", fileId);
-        console.log("File opened");
+    taskManager.setFile((fileName) => {
+        console.log(fileName);
     });
-
 });
 updateButton.addEventListener("click", () => {
-    updateTasks();
+    taskManager.updateTasks((tasks) => {
+        displayTasks(tasks);
+    });
 });
 
-
-
-let parser = new DOMParser();
 
 function formatDate(d) {
     let month = '' + (d.getMonth() + 1),
@@ -89,6 +66,9 @@ function taskToHtml(text, timestamp) {
 
 
 function displayTasks(tasks) {
+    if (!tasks) {
+        return;
+    }
     taskContainer.innerHTML = "";
 
     for (let i = 0; i < tasks.length; i++) {
@@ -101,10 +81,9 @@ function displayTasks(tasks) {
         removeButton.addEventListener('click', () => {
             console.log('remove', task);
             // Remove the task from the list
-            tasks.splice(tasks.indexOf(task), 1);
-            console.log(tasks);
-            storeTasks();
-            displayTasks(tasks);
+            taskManager.removeTask(task, (tasks) => {
+                displayTasks(tasks);
+            });
         })
         taskContainer.appendChild(childTask);
     }

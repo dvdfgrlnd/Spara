@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Google Picker Example</title>
+
+    <link rel="stylesheet" type="text/css" href="index.css">
+
+</head>
+
+<body>
+    <div id="result"></div>
+
+    <div id="container">
+        <button id="selectFileButton" class="button">Select file</button>
+        <button id="readFileButton" class="button">Update</button>
+
+        <div id="addContainer">
+            <input type="text" id="addInput" />
+            <button id="addButton" class="button">Add</button>
+        </div>
+
+        <div id="task_container">
+        </div>
+    </div>
+
+    <!-- The Google API Loader script. -->
+    <!-- <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script> -->
+
+    <script type="text/javascript" src="filehandler.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};gapi_loaded()"
+        onreadystatechange="if (this.readyState === 'complete') this.onload()">
+        </script>
+
+</body>
+
+</html>

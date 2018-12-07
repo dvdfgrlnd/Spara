@@ -1,0 +1,64 @@
+html{
+    background-color: #222222;
+}
+
+h1, h2, p {
+    color: #FFFFFF;
+}
+
+hr {
+    display: block;
+    border-color: #00af45;
+}
+
+#addContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+.divider {
+    height: 1px;
+    background-color: #ff5b00;
+}
+
+.taskContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+.taskProperties {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.tools {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.button {
+    display:inline-block;
+    padding:0.35em 1.2em;
+    border:0.1em solid #FFFFFF;
+    margin:0 0.3em 0.3em 0;
+    border-radius:0.12em;
+    box-sizing: border-box;
+    text-decoration:none;
+    font-family:'Roboto',sans-serif;
+    font-weight:300;
+    background-color: transparent;
+    color:#FFFFFF;
+    text-align:center;
+    transition: all 0.2s;
+}
+.button:hover {
+    color:#000000;
+    background-color:#FFFFFF;
+}
+
+.removeButton {
+    color: #ff0000;
+}

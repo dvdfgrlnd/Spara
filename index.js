@@ -8,6 +8,7 @@ addButton.addEventListener('click', addTask);
 
 let fileHandler = new FileHandler();
 let storage = window.localStorage;
+var tasks = [];
 
 function gapi_loaded() {
     fileHandler.loadLibrary(() => {
@@ -18,9 +19,10 @@ function gapi_loaded() {
 
 function updateTasks() {
     let fileId = storage.getItem("file_id");
-    fileHandler.downloadFile(fileId, (data) => {
-        tasks = JSON.parse(data);
+    fileHandler.downloadFile(fileId, (all_tasks) => {
+        // tasks = JSON.parse(data);
         // Sort tasks in descending order
+        tasks = all_tasks;
         tasks = tasks.sort((a, b) => { return (b.timestamp - a.timestamp) });
         displayTasks(tasks);
     });
@@ -32,9 +34,14 @@ function addTask() {
     let task = { text, timestamp }
     tasks.splice(0, 0, task);
     console.log(tasks);
+    displayTasks(tasks);
+    storeTasks();
+}
+
+function storeTasks() {
     let fileId = storage.getItem("file_id");
     fileHandler.updateFile(fileId, JSON.stringify(tasks), () => {
-        displayTasks(tasks);
+        // displayTasks(tasks);
     });
 }
 
@@ -47,7 +54,6 @@ selectFileButton.addEventListener("click", () => {
 
 });
 updateButton.addEventListener("click", () => {
-    let fileId = storage.getItem("file_id");
     updateTasks();
 });
 
@@ -97,11 +103,9 @@ function displayTasks(tasks) {
             // Remove the task from the list
             tasks.splice(tasks.indexOf(task), 1);
             console.log(tasks);
+            storeTasks();
+            displayTasks(tasks);
         })
         taskContainer.appendChild(childTask);
     }
 }
-
-
-let tasks = JSON.parse('[{"text":"One Example","timestamp":1543487736660},{"text":"Two","timestamp":1543487749299},{"text":"New message","timestamp":1543487798713},{"text":"Message","timestamp":1543488096011},{"text":"Update","timestamp":1543488120006},{"text":"New message","timestamp":1543502504036}]');
-// displayTasks(tasks);

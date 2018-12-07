@@ -10,65 +10,72 @@ class FileHandler {
         this.MIME_TYPE = "application/json";
 
         // Scope to use to access user's Drive items.
-        this.SCOPE = ['https://www.googleapis.com/auth/drive'];
+        this.SCOPE = 'https://www.googleapis.com/auth/drive';
+        this.DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+
+        // Authorization scopes required by the API; multiple scopes can be
+        // included, separated by spaces.
+
 
         this.pickerApiLoaded = false;
         this.authApiLoaded = false;
         this.clientApiLoaded = false;
         this.driveApiLoaded = false;
-        this.oauthToken = "ya29.GlxqBjWAkKZQtp9U_qBCJydFej3QJoR3BnkAPEBmflM5y86WCf9_lLMMlIAGenKI7r-dTcYwgO0YveR262vWo4F5hoRH1KJapSjMSd6-RFOKob0Y0Au6_WL5c_8i2w";
+        this.oauthToken = null;
     }
 
     // Use the Google API Loader script to load the google.picker script.
     loadLibrary(callback) {
         let func = this._onPickerLoaded(callback);
-        window.gapi.load('auth', { 'callback': this._onAuthApiLoad(func) });
         window.gapi.load('picker', { 'callback': this._onPickerApiLoad(func) });
         // Load client api
-        window.gapi.load('client', this._onClientApiLoad(func));
+        gapi.load('client:auth2', this.initClient(func).bind(this));
     }
 
-    _onClientApiLoad(func) {
-        return () => {
-            this.clientApiLoaded = true;
-            // Load drive api
-            window.gapi.client.load('drive', 'v2', this._onDriveApiLoad(func));
-        };
+    initClient(func) {
+        let that = this;
+        return function () {
+            gapi.client.init({
+                apiKey: this.API_KEY,
+                clientId: this.CLIENT_ID,
+                discoveryDocs: this.DISCOVERY_DOCS,
+                scope: this.SCOPE
+            }).then(function () {
+                console.log('client init');
+                // Listen for sign-in state changes.
+                gapi.auth2.getAuthInstance().isSignedIn.listen((isSignedIn) => {
+                    that.updateSigninStatus(isSignedIn, func);
+                });
+
+                // Handle the initial sign-in state.
+                that.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get(), func);
+
+                gapi.auth2.getAuthInstance().signIn();
+            }, function (error) {
+                appendPre(JSON.stringify(error, null, 2));
+            });
+        }
     }
 
-    _onDriveApiLoad(func) {
-        return () => {
-            this.driveApiLoaded = true;
+    updateSigninStatus(isSignedIn, func) {
+        if (isSignedIn) {
+            this.authApiLoaded = true;
+            console.log('Signed in');
             func();
-        };
+        } else {
+            console.log('Signed out');
+        }
     }
 
     _onPickerLoaded(callback) {
+        console.log('picker loaded');
         return () => {
-            if (this.pickerApiLoaded && this.authApiLoaded && this.clientApiLoaded && this.driveApiLoaded) {
-                this.authorize(callback);
+            if (this.pickerApiLoaded && this.authApiLoaded) {
+                callback();
                 // callback();
                 // this.openPicker();
             }
         }
-    }
-
-    _onAuthApiLoad(func) {
-        return () => {
-            console.log('onauthapiload');
-            this.authApiLoaded = true;
-            func();
-        }
-    }
-
-    authorize(callback) {
-        window.gapi.auth.authorize(
-            {
-                'client_id': this.CLIENT_ID,
-                'scope': this.SCOPE,
-                'immediate': false
-            },
-            this._handleAuthResult(callback));
     }
 
     _onPickerApiLoad(func) {
@@ -79,24 +86,16 @@ class FileHandler {
         }
     }
 
-    _handleAuthResult(func) {
-        return (authResult) => {
-            if (authResult && !authResult.error) {
-                this.oauthToken = authResult.access_token;
-                func();
-            }
-        }
-    }
-
     // Create and render a Picker object for searching images.
     openFile(callback) {
+        let accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token
         // When both the picker and oAuth api are loaded open the file picker
         var view = new google.picker.View(google.picker.ViewId.DOCS);
         view.setMimeTypes(this.MIME_TYPE);
         var picker = new google.picker.PickerBuilder()
             .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
             .setAppId(this.APP_ID)
-            .setOAuthToken(this.oauthToken)
+            .setOAuthToken(accessToken)
             .addView(view)
             .addView(new google.picker.DocsUploadView())
             .setDeveloperKey(this.API_KEY)
@@ -124,7 +123,7 @@ class FileHandler {
         var accessToken = window.gapi.auth.getToken().access_token;
         var myInit = {
             method: 'PATCH',
-            headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type':'text/plain' },
+            headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'text/plain' },
             responseType: "json",
             body: content
         };
@@ -139,28 +138,21 @@ class FileHandler {
     }
 
     downloadFile(fileId, callback) {
+        // var request = gapi.client.request({
+        //     'method': 'GET',
+        //     'path': '/drive/v3/files',
+        //     'params': { 'fileId': fileId, 'alt': 'media' }
+        // });
+        // // Execute the API request.
+        // request.then((response) => {
+        //     console.log(response);
+        // }, (error) => { console.log(error) }, this);
         var request = window.gapi.client.drive.files.get({
-            'fileId': fileId
+            'fileId': fileId, 'alt': 'media'
         });
         request.execute((file) => {
-            if (file.downloadUrl) {
-                var accessToken = window.gapi.auth.getToken().access_token;
-
-                var myInit = {
-                    method: 'GET',
-                    headers: { 'Authorization': 'Bearer ' + accessToken }
-                };
-
-                var myRequest = new Request(file.downloadUrl, myInit);
-
-                fetch(myRequest).then(function (response) {
-                    return response.text();
-                }).then(function (text) {
-                    callback(text);
-                });
-            } else {
-                callback(null);
-            }
+            console.log(file);
+            callback(file);
         });
     }
 

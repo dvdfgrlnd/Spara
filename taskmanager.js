@@ -47,7 +47,6 @@ class TaskManager {
                 this.fileName = fileName;
                 storage.setItem("file_id", fileId);
                 storage.setItem("file_name", fileName);
-                // console.log("File opened");
                 resolve(fileName);
             });
         });
@@ -72,7 +71,6 @@ class TaskManager {
                     if (!all_tasks) {
                         reject("No data found");
                     } else {
-                        // tasks = JSON.parse(data);
                         // Sort tasks in descending order
                         this.tasks = all_tasks;
                         this.tasks = this.tasks.sort((a, b) => { return (b.timestamp - a.timestamp) });

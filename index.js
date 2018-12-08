@@ -92,7 +92,6 @@ function displayTasks(tasks) {
         let childTask = parser.parseFromString(taskToHtml(task.text, timeStr), "text/html").body.childNodes[0];
         let removeButton = childTask.querySelector('.removeButton');
         removeButton.addEventListener('click', () => {
-            console.log('remove', task);
             // Remove the task from the list
             taskManager.removeTask(task).then((tasks) => {
                 displayTasks(tasks);

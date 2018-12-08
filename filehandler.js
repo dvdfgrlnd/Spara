@@ -60,19 +60,15 @@ class FileHandler {
     }
 
     _onPickerLoaded(callback) {
-        console.log('picker loaded');
         return () => {
             if (this.pickerApiLoaded && this.authApiLoaded) {
                 callback();
-                // callback();
-                // this.openPicker();
             }
         }
     }
 
     _onPickerApiLoad(func) {
         return () => {
-            console.log('onpickerapiload');
             this.pickerApiLoaded = true;
             func();
         }
@@ -130,15 +126,6 @@ class FileHandler {
     }
 
     downloadFile(fileId, callback) {
-        // var request = gapi.client.request({
-        //     'method': 'GET',
-        //     'path': '/drive/v3/files',
-        //     'params': { 'fileId': fileId, 'alt': 'media' }
-        // });
-        // // Execute the API request.
-        // request.then((response) => {
-        //     console.log(response);
-        // }, (error) => { console.log(error) }, this);
         var request = window.gapi.client.drive.files.get({
             'fileId': fileId, 'alt': 'media'
         });

@@ -14,26 +14,39 @@ var tasks = [];
 // displayTasks(tasks);
 
 function gapi_loaded() {
-    taskManager.loadLibrary((tasks) => {
+    taskManager.loadLibrary().then((tasks) => {
         displayTasks(tasks);
+    }).catch((reason) => {
+        // Show error
+        console.error(reason);
     });
 }
 
 function addTask() {
     let text = addInput.value;
-    taskManager.addTask(text, (tasks) => {
+    taskManager.addTask(text).then((tasks) => {
         displayTasks(tasks);
+    }).catch((reason) => {
+        // Show error
+        console.error(reason);
     });
 }
 
 selectFileButton.addEventListener("click", () => {
-    taskManager.setFile((fileName) => {
+    taskManager.setFile().then((fileName) => {
         console.log(fileName);
+    }).catch((reason) => {
+        // Show error
+        console.error(reason);
     });
 });
+
 updateButton.addEventListener("click", () => {
-    taskManager.updateTasks((tasks) => {
+    taskManager.updateTasks().then((tasks) => {
         displayTasks(tasks);
+    }).catch((reason) => {
+        // Show error
+        console.error(reason);
     });
 });
 
@@ -81,8 +94,10 @@ function displayTasks(tasks) {
         removeButton.addEventListener('click', () => {
             console.log('remove', task);
             // Remove the task from the list
-            taskManager.removeTask(task, (tasks) => {
+            taskManager.removeTask(task).then((tasks) => {
                 displayTasks(tasks);
+            }).catch((reason) => {
+                console.error(reason);
             });
         })
         taskContainer.appendChild(childTask);

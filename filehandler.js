@@ -13,15 +13,8 @@ class FileHandler {
         this.SCOPE = 'https://www.googleapis.com/auth/drive';
         this.DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 
-        // Authorization scopes required by the API; multiple scopes can be
-        // included, separated by spaces.
-
-
         this.pickerApiLoaded = false;
         this.authApiLoaded = false;
-        this.clientApiLoaded = false;
-        this.driveApiLoaded = false;
-        this.oauthToken = null;
     }
 
     // Use the Google API Loader script to load the google.picker script.
@@ -41,7 +34,6 @@ class FileHandler {
                 discoveryDocs: this.DISCOVERY_DOCS,
                 scope: this.SCOPE
             }).then(function () {
-                console.log('client init');
                 // Listen for sign-in state changes.
                 gapi.auth2.getAuthInstance().isSignedIn.listen((isSignedIn) => {
                     that.updateSigninStatus(isSignedIn, func);
@@ -52,7 +44,7 @@ class FileHandler {
 
                 gapi.auth2.getAuthInstance().signIn();
             }, function (error) {
-                appendPre(JSON.stringify(error, null, 2));
+                func();
             });
         }
     }

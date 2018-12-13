@@ -1,8 +1,12 @@
 let selectFileButton = document.getElementById("selectFileButton");
 let updateButton = document.getElementById("readFileButton");
-let taskContainer = document.getElementById("task_container");
-let addInput = document.getElementById("addInput");
 let addButton = document.getElementById("addButton");
+
+let taskContainer = document.getElementById("task_container");
+
+let addInput = document.getElementById("addInput");
+
+let fileNameHeader = document.getElementById("fileNameHeader");
 
 addButton.addEventListener('click', addTask);
 
@@ -12,6 +16,12 @@ let taskManager = new TaskManager(storage);
 var tasks = [];
 // tasks = JSON.parse(`[{"text":"Three","timestamp":1544187258016},{"text":"Two","timestamp":1544186876526}]`)
 // displayTasks(tasks);
+
+// Set file name
+let fileName = storage.getItem("file_name");
+if (fileName) {
+    fileNameHeader.innerText = fileName;
+}
 
 function gapi_loaded() {
     taskManager.loadLibrary().then((tasks) => {
